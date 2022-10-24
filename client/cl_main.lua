@@ -184,13 +184,13 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(type)
         end
     elseif Config.Dispatch == "ps-dispatch" then
         if type == "assistance" then 
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(0.0, 0.0, 0.0), message = "Assitance Required", dispatchCode = "10-60", description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Assitance Required", dispatchCode = "10-60", description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "weaponlicense" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(0.0, 0.0, 0.0), message = "Weapon License Request", dispatchCode = "10-60", description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Weapon License Request", dispatchCode = "10-60", description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "interview" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(0.0, 0.0, 0.0), message = "Interview Request", dispatchCode = "10-60", description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Interview Request", dispatchCode = "10-60", description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "supervisor" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(0.0, 0.0, 0.0), message = "Supervisor Request", dispatchCode = "10-60", description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Supervisor Request", dispatchCode = "10-60", description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         end
     elseif Config.Dispatch == "cd_dispatch" then
         local data = exports['cd_dispatch']:GetPlayerInfo()
