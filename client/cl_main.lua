@@ -47,14 +47,6 @@ local function IsValidJob()
     return retval
 end
 
-local function DutyCheck()
-    local retval = false
-    if PlayerData.job.onduty then
-        retval = true
-    end
-    return retval
-end
-
 RegisterNetEvent('rs-frontdesk:client:OpenFrontDesk',function()
     if IsValidJob() then
     local FrontDeskMenu = {
@@ -183,14 +175,16 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(type)
             TriggerServerEvent('police:server:policeAlert', 'Supervisor Request')
         end
     elseif Config.Dispatch == "ps-dispatch" then
+        local PlayerData = QBCore.Functions.GetPlayerData()
+        local coords = GetEntityCoords(PlayerPedId())
         if type == "assistance" then 
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Assitance Required", dispatchCode = "10-60", description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Assitance Required", dispatchCode = "10-60", firstStreet = coords, name =  PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "weaponlicense" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Weapon License Request", dispatchCode = "10-60", description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Weapon License Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "interview" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Interview Request", dispatchCode = "10-60", description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Interview Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         elseif type == "supervisor" then
-            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Supervisor Request", dispatchCode = "10-60", description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+            exports["ps-dispatch"]:CustomAlert({ coords = vector3(442.44, -979.91, 30.69), message = "Supervisor Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
         end
     elseif Config.Dispatch == "cd_dispatch" then
         local data = exports['cd_dispatch']:GetPlayerInfo()
