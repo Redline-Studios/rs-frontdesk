@@ -105,7 +105,7 @@ end
 end)
 
 RegisterNetEvent('rs-frontdesk:client:ToggleDuty',function()
-    TriggerServerEvent('qb-policejob:ToggleDuty')
+    TriggerEvent('qb-policejob:ToggleDuty')
 end)
 
 
