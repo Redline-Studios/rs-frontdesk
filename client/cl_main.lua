@@ -1,6 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = QBCore.Functions.GetPlayerData()
-local PlayerJob = QBCore.Functions.GetPlayerData().job.name
+local PlayerJob = QBCore.Functions.GetPlayerData().job
 local closestDesk = nil
 
 -- Front Desk Target Zones
@@ -50,7 +50,7 @@ end)
 
 -- Front Desk Menu
 RegisterNetEvent('rs-frontdesk:client:OpenFrontDesk',function(job)
-    if PlayerJob == job then
+    if PlayerJob.name == job then
         local FrontDeskMenu = {
             {
                 header =  Config.Locations[job].Zone.name,
@@ -222,7 +222,8 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
+	PlayerData = QBCore.Functions.GetPlayerData()
+	FrontDeskZones()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
