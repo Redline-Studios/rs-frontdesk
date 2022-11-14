@@ -243,7 +243,7 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
         for k, v in pairs(Config.Locations) do
-            exports['qb-target']:RemoveZone(v.name)
+            exports['qb-target']:RemoveZone(v.Zone.name)
         end
     end
 end)
