@@ -1,6 +1,7 @@
 Config = {}
 Config.Debug = false -- True / False for Debug System
 Config.Dispatch = "ps-dispatch" -- Default / ps-dispatch / cd-dispatch
+Config.PoliceRequired = 1 -- How many PD Officers Required to request
 
 Config.Locations = {
     ["police"] = { -- Set this to the name of the job

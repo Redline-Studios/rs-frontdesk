@@ -150,6 +150,7 @@ end)
 
 -- Request Assistance Event
 RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
+    if CurrentCops >= Config.PoliceRequired  then
     QBCore.Functions.Notify('You will be assisted shortly!', 'success')
     Wait(1000)
 
@@ -216,10 +217,16 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
                 TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
             elseif data.type == "supervisor" then
                 TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
+                end
             end
         end
     end
 end)
+
+RegisterNetEvent('police:SetCopCount', function(amount)
+    CurrentCops = amount
+end)
+
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 	PlayerData = QBCore.Functions.GetPlayerData()
