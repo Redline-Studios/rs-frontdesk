@@ -1,7 +1,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local PlayerData = QBCore.Functions.GetPlayerData()
-local PlayerJob = QBCore.Functions.GetPlayerData().job
 local closestDesk = nil
+
+PlayerData = QBCore.Functions.GetPlayerData()
+PlayerJob = QBCore.Functions.GetPlayerData().job
 
 -- Front Desk Target Zones
 local function FrontDeskZones()
