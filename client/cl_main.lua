@@ -1,9 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local closestDesk = nil
 
-PlayerData = QBCore.Functions.GetPlayerData()
-PlayerJob = QBCore.Functions.GetPlayerData().job
-
 -- Front Desk Target Zones
 local function FrontDeskZones()
 	for k, v in pairs(Config.Locations) do
@@ -231,6 +228,7 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 	PlayerData = QBCore.Functions.GetPlayerData()
+	PlayerJob = QBCore.Functions.GetPlayerData().job
 	FrontDeskZones()
 end)
 
@@ -244,6 +242,8 @@ end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
+	PlayerData = QBCore.Functions.GetPlayerData()
+	PlayerJob = QBCore.Functions.GetPlayerData().job
         FrontDeskZones()
     end
 end)
