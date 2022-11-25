@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+local CurrentCops = 0
 local closestDesk = nil
 
 -- Front Desk Target Zones
