@@ -1,10 +1,12 @@
 Config = {}
 Config.Debug = false -- True / False for Debug System
-Config.Dispatch = "ps-dispatch" -- Default / ps-dispatch / cd-dispatch
+Config.Dispatch = "ps-dispatch" -- 'default' / 'ps-dispatch' / 'cd_dispatch'
 Config.PoliceRequired = 1 -- How many PD Officers Required to request
+Config.Cooldown = 1 -- Server cooldown for alerts ( Set in minutes )
 
 Config.Locations = {
     ["police"] = { -- Set this to the name of the job
+        Required = 1, -- How many players with this job are required to be online to make a request/alert (You'll need to add events that track the amount of players online with that job. Police / Ambulance is setup by default)
         Zone = { -- Polyzone Info
             name = "MRPD Front Desk", -- Name of the menu title
             coords = vector3(442.44, -979.91, 30.69), -- Boxzone Coords
@@ -21,6 +23,7 @@ Config.Locations = {
         }
     },
     ["ambulance"] = {
+        Required = 1, -- How many players with this job are required to be online to make a request/alert (You'll need to add events that track the amount of players online with that job. Police / Ambulance is setup by default)
         Zone = {
             name = "Pillbox Front Desk",
             coords = vector3(311.81, -593.42, 43.28),

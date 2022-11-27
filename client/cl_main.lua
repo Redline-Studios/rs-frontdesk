@@ -1,8 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local closestDesk = nil
-
-PlayerData = QBCore.Functions.GetPlayerData()
-PlayerJob = QBCore.Functions.GetPlayerData().job
+local onDuty = false
+local CurrentCops = 0
+local doctorCount = 0
+local PlayerData = QBCore.Functions.GetPlayerData()
+local PlayerJob = QBCore.Functions.GetPlayerData().job
 
 -- Front Desk Target Zones
 local function FrontDeskZones()
@@ -33,7 +35,7 @@ end
 CreateThread(function()
     while true do
         Wait(100)
-        for k, v in pairs(Config.Locations) do
+        for k in pairs(Config.Locations) do
             local Pos = GetEntityCoords(PlayerPedId())
             local Distance = #(Pos - vector3(Config.Locations[k].Zone.coords.x,Config.Locations[k].Zone.coords.y,Config.Locations[k].Zone.coords.z))
             if Distance < 5 then
@@ -151,95 +153,136 @@ end)
 
 -- Request Assistance Event
 RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
-    if CurrentCops >= Config.PoliceRequired then
-        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
-        Wait(1000)
-
-        if Config.Dispatch == "default" then
-            if data.job == 'police' then
-                if data.type == "assistance" then
-                    TriggerServerEvent('police:server:policeAlert', 'Assitance Required')
-                elseif data.type == "weaponlicense" then
-                    TriggerServerEvent('police:server:policeAlert', 'Weapon License Request')
-                elseif data.type == "interview" then
-                    TriggerServerEvent('police:server:policeAlert', 'Interview Request')
-                elseif data.type == "supervisor" then
-                    TriggerServerEvent('police:server:policeAlert', 'Supervisor Request')
+    QBCore.Functions.TriggerCallback('rs-frontdesk:server:CooldownCheck', function(alert)
+        if alert then
+            if Config.Dispatch == "default" then
+                if data.job == 'police' then
+                    if CurrentCops >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            TriggerServerEvent('police:server:policeAlert', 'Assitance Required')
+                        elseif data.type == "weaponlicense" then
+                            TriggerServerEvent('police:server:policeAlert', 'Weapon License Request')
+                        elseif data.type == "interview" then
+                            TriggerServerEvent('police:server:policeAlert', 'Interview Request')
+                        elseif data.type == "supervisor" then
+                            TriggerServerEvent('police:server:policeAlert', 'Supervisor Request')
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough officers on duty!', 'error', 3000)
+                    end
+                elseif data.job == 'ambulance' then
+                    if doctorCount >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            TriggerServerEvent('hospital:server:ambulanceAlert', 'Assitance Required')
+                        elseif data.type == "interview" then
+                            TriggerServerEvent('hospital:server:ambulanceAlert', 'Interview Request')
+                        elseif data.type == "supervisor" then
+                            TriggerServerEvent('hospital:server:ambulanceAlert', 'Supervisor Request')
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
+                    end
                 end
-            elseif data.job == 'ambulance' then
-                if data.type == "assistance" then
-                    TriggerServerEvent('hospital:server:ambulanceAlert', 'Assitance Required')
-                elseif data.type == "interview" then
-                    TriggerServerEvent('hospital:server:ambulanceAlert', 'Interview Request')
-                elseif data.type == "supervisor" then
-                    TriggerServerEvent('hospital:server:ambulanceAlert', 'Supervisor Request')
+            elseif Config.Dispatch == "ps-dispatch" then
+                local PlayerData = QBCore.Functions.GetPlayerData()
+                local coords = GetEntityCoords(PlayerPedId())
+                if data.job == 'police' then
+                    if CurrentCops >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Assitance Required", dispatchCode = "10-60", firstStreet = coords, name =  PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        elseif data.type == "weaponlicense" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Weapon License Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        elseif data.type == "interview" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Interview Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        elseif data.type == "supervisor" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Supervisor Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough officers on duty!', 'error', 3000)
+                    end
+                elseif data.job == 'ambulance' then
+                    if doctorCount >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Assitance Required", dispatchCode = "10-60", firstStreet = coords, name =  PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        elseif data.type == "interview" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Interview Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        elseif data.type == "supervisor" then
+                            exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Supervisor Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
+                    end
+                end
+            elseif Config.Dispatch == "cd_dispatch" then
+                local data = exports['cd_dispatch']:GetPlayerInfo()
+                if data.job == 'police' then
+                    if CurrentCops >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "weaponlicense" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "interview" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "supervisor" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough officers on duty!', 'error', 3000)
+                    end
+                elseif data.job == 'ambulance' then
+                    if doctorCount >= Config.Locations[data.job].Required then
+                        QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                        if data.type == "assistance" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "weaponlicense" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "interview" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        elseif data.type == "supervisor" then
+                            TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
+                        end
+                        TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                    else
+                        QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
+                    end
                 end
             end
-        elseif Config.Dispatch == "ps-dispatch" then
-            local PlayerData = QBCore.Functions.GetPlayerData()
-            local coords = GetEntityCoords(PlayerPedId())
-            if data.job == 'police' then
-                if data.type == "assistance" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Assitance Required", dispatchCode = "10-60", firstStreet = coords, name =  PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                elseif data.type == "weaponlicense" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Weapon License Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Weapon License Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                elseif data.type == "interview" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Interview Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                elseif data.type == "supervisor" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['police'].Zone.coords, job = { 'police' }, message = "Supervisor Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                end
-            elseif data.job == 'ambulance' then
-                if data.type == "assistance" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Assitance Required", dispatchCode = "10-60", firstStreet = coords, name =  PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Assistance Required", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                elseif data.type == "interview" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Interview Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Interview Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                elseif data.type == "supervisor" then
-                    exports["ps-dispatch"]:CustomAlert({ coords = Config.Locations['ambulance'].Zone.coords, job = { 'ambulance' }, message = "Supervisor Request", dispatchCode = "10-60", firstStreet = coords, name = PlayerData.charinfo.firstname:sub(1,1):upper()..PlayerData.charinfo.firstname:sub(2).. " ".. PlayerData.charinfo.lastname:sub(1,1):upper()..PlayerData.charinfo.lastname:sub(2), description = "Supervisor Request", radius = 0, sprite = 205, color = 2, scale = 1.0, length = 3, })
-                end
-            end
-        elseif Config.Dispatch == "cd_dispatch" then
-            local data = exports['cd_dispatch']:GetPlayerInfo()
-            if data.job == 'police' then
-                if data.type == "assistance" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "weaponlicense" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "interview" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "supervisor" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
-                end
-            elseif data.job == 'ambulance' then
-                if data.type == "assistance" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "weaponlicense" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "interview" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
-                elseif data.type == "supervisor" then
-                    TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
-                end
-            end
+        else
+            QBCore.Functions.Notify('Alert was recently sent, please wait!', 'error', 7500)
         end
-    end
+    end, data.job)
 end)
 
 RegisterNetEvent('police:SetCopCount', function(amount)
     CurrentCops = amount
 end)
 
+RegisterNetEvent('hospital:client:SetDoctorCount', function(amount)
+    doctorCount = amount
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerJob = JobInfo
+end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 	PlayerData = QBCore.Functions.GetPlayerData()
+    PlayerJob = QBCore.Functions.GetPlayerData().job
 	FrontDeskZones()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     PlayerData = {}
-end)
-
-RegisterNetEvent("QBCore:Client:OnJobUpdate", function(jobInfo)
-    PlayerJob = jobInfo
 end)
 
 AddEventHandler('onResourceStart', function(resource)
