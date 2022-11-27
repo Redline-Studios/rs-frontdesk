@@ -1,6 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+local CurrentCops = 0
 local closestDesk = nil
-local onDuty = false
 local CurrentCops = 0
 local doctorCount = 0
 local PlayerData = QBCore.Functions.GetPlayerData()
@@ -287,6 +287,8 @@ end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
+	PlayerData = QBCore.Functions.GetPlayerData()
+	PlayerJob = QBCore.Functions.GetPlayerData().job
         FrontDeskZones()
     end
 end)
