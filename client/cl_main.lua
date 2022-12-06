@@ -221,34 +221,43 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
                         QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
                     end
                 end
+
             elseif Config.Dispatch == "cd_dispatch" then
-                local data = exports['cd_dispatch']:GetPlayerInfo()
                 if data.job == 'police' then
                     if CurrentCops >= Config.Locations[data.job].Required then
                         QBCore.Functions.Notify('You will be assisted shortly!', 'success')
                         if data.type == "assistance" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "weaponlicense" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "interview" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "supervisor" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'police' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
                         end
                         TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
                     else
                         QBCore.Functions.Notify('Not enough officers on duty!', 'error', 3000)
                     end
+
                 elseif data.job == 'ambulance' then
                     if doctorCount >= Config.Locations[data.job].Required then
                         QBCore.Functions.Notify('You will be assisted shortly!', 'success')
                         if data.type == "assistance" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "weaponlicense" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Weapon License Request', message = 'Weapon License Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Weapon License Request', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "interview" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
                         elseif data.type == "supervisor" then
+                            local data = exports['cd_dispatch']:GetPlayerInfo()
                             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'ambulance' }, coords = data.coords, title = '10-60 - Supervisor Request', message = 'Supervisor Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
                         end
                         TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
@@ -256,6 +265,31 @@ RegisterNetEvent('rs-frontdesk:client:RequestAssistance',function(data)
                         QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
                     end
                 end
+                
+                -- ADD MORE JOBS BELOW 
+                -- DON'T FORGET TO ADD THEM TO YOUR CONFIG AS WELL
+
+                -- elseif data.job == 'mechanic' then
+                --     if doctorCount >= Config.Locations[data.job].Required then
+                --         QBCore.Functions.Notify('You will be assisted shortly!', 'success')
+                --         if data.type == "assistance" then
+                --             local data = exports['cd_dispatch']:GetPlayerInfo()
+                --             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'mechanic' }, coords = data.coords, title = 'Assitance Required', message = 'Assitance Required at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Assitance Required', time = (5 * 60 * 1000), sound = 1, }, })
+                --         elseif data.type == "weaponlicense" then
+                --             local data = exports['cd_dispatch']:GetPlayerInfo()
+                --             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'mechanic' }, coords = data.coords, title = 'Upgrade' Request', message = 'Sucker at the front desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = 'Someone wanna go fast', time = (5 * 60 * 1000), sound = 1, }, })
+                --         elseif data.type == "interview" then
+                --             local data = exports['cd_dispatch']:GetPlayerInfo()
+                --             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'mechanic' }, coords = data.coords, title = '10-60 - Interview Request', message = 'Interview Request at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = '911 - Interview Request', time = (5 * 60 * 1000), sound = 1, }, })
+                --         elseif data.type == "supervisor" then
+                --             local data = exports['cd_dispatch']:GetPlayerInfo()
+                --             TriggerServerEvent('cd_dispatch:AddNotification', { job_table = { 'mechanic' }, coords = data.coords, title = 'Karen Alert', message = 'Karen at the Front Desk', flash = 0, unique_id = tostring(math.random(0000000, 9999999)), blip = { sprite = 205, scale = 1.2, colour = 3, flashes = false, text = 'Supervisor Request', time = (5 * 60 * 1000), sound = 1, }, })
+                --         end
+                --         TriggerServerEvent('rs-frontdesk:server:AlertCooldown', data.job, true)
+                --     else
+                --         QBCore.Functions.Notify('Not enough doctors on duty!', 'error', 3000)
+                --     end
+                -- end
             end
         else
             QBCore.Functions.Notify('Alert was recently sent, please wait!', 'error', 7500)
