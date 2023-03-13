@@ -7,6 +7,19 @@ local PlayerData = QBCore.Functions.GetPlayerData()
 local PlayerJob = QBCore.Functions.GetPlayerData().job
 
 -- Front Desk Target Zones
+
+local function nearestDesk()
+    for k in pairs(Config.Locations) do
+        local Pos = GetEntityCoords(PlayerPedId())
+        local Distance = #(Pos - vector3(Config.Locations[k].Zone.coords.x,Config.Locations[k].Zone.coords.y,Config.Locations[k].Zone.coords.z))
+        if Distance < 5 then
+            closestDesk = k
+            if Config.Debug then print(closestDesk) end
+        end
+    end
+    return closestDesk
+end
+
 local function FrontDeskZones()
 	for k, v in pairs(Config.Locations) do
         exports['qb-target']:AddBoxZone(v.Zone.name, v.Zone.coords, v.Zone.length, v.Zone.width, {
@@ -20,7 +33,8 @@ local function FrontDeskZones()
                 {
                     type = "client",
                     action = function()
-                        TriggerEvent("rs-frontdesk:client:OpenFrontDesk", closestDesk)
+                        local location = nearestDesk()
+                        TriggerEvent("rs-frontdesk:client:OpenFrontDesk", location)
                     end,
                     icon = "fas fa-desktop",
                     label = "Front Desk",
@@ -30,26 +44,6 @@ local function FrontDeskZones()
         })
     end
 end
-
--- Gets closest front desk to pass the correct data
-CreateThread(function()
-    while true do
-        Wait(100)
-        for k in pairs(Config.Locations) do
-            local Pos = GetEntityCoords(PlayerPedId())
-            local Distance = #(Pos - vector3(Config.Locations[k].Zone.coords.x,Config.Locations[k].Zone.coords.y,Config.Locations[k].Zone.coords.z))
-            if Distance < 5 then
-                closestDesk = k
-
-                if Config.Debug then
-                    print(closestDesk)
-                end
-            else
-                Wait(100)
-            end
-        end
-    end
-end)
 
 -- Front Desk Menu
 RegisterNetEvent('rs-frontdesk:client:OpenFrontDesk',function(job)
